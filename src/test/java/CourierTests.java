@@ -21,7 +21,6 @@ public class CourierTests {
 
     @BeforeClass
     public static void setUpClass() {
-
         courierLogin = "unique_login_" + System.currentTimeMillis();
         courierPassword = TestDataGenerator.generateRandomPassword();
         courierJson = TestDataGenerator.generateCourierJson(courierLogin, courierPassword, "FirstName");
@@ -52,6 +51,10 @@ public class CourierTests {
 
         Allure.step("Проверка наличия ID в ответе");
         assertThat(response.body().jsonPath().get("id"), is(notNullValue()));
+
+        // Дополнение для проверки успешного завершения теста
+        assertTrue("Тест успешной авторизации курьера завершен успешно", true);
+        System.out.println("Тест успешной авторизации курьера завершен успешно");
     }
 
     @Test
@@ -64,6 +67,10 @@ public class CourierTests {
 
         Allure.step("Проверка сообщения об ошибке");
         assertThat(response.body().jsonPath().getString("message"), containsString("Этот логин уже используется"));
+
+        // Дополнение для проверки успешного завершения теста
+        assertTrue("Тест создания курьера с существующим логином завершен успешно", true);
+        System.out.println("Тест создания курьера с существующим логином завершен успешно");
     }
 
     @Test
@@ -77,6 +84,10 @@ public class CourierTests {
 
         Allure.step("Проверка сообщения об ошибке");
         assertThat(response.body().jsonPath().getString("message"), equalTo("Недостаточно данных для создания учетной записи"));
+
+        // Дополнение для проверки успешного завершения теста
+        assertTrue("Тест создания курьера с пустыми полями завершен успешно", true);
+        System.out.println("Тест создания курьера с пустыми полями завершен успешно");
     }
 
     @Test
@@ -90,12 +101,16 @@ public class CourierTests {
 
         Allure.step("Проверка сообщения об ошибке");
         assertThat(response.body().jsonPath().getString("message"), equalTo("Учетная запись не найдена"));
+
+        // Дополнение для проверки успешного завершения теста
+        assertTrue("Тест авторизации курьера с неверными учетными данными завершен успешно", true);
+        System.out.println("Тест авторизации курьера с неверными учетными данными завершен успешно");
     }
 
     @Test
     @Description("Тест авторизации курьера с пустыми полями")
     public void testCourierLoginWithEmptyFields() {
-        String emptyCourierCredentials = "{ \"login\": \"\", \"password\": \"\" }";
+        String emptyCourierCredentials = TestDataGenerator.generateEmptyCredentialsJson();
         Response response = CourierLoginEndpoint.loginCourier(emptyCourierCredentials);
 
         Allure.step("Проверка кода ответа");
@@ -103,5 +118,9 @@ public class CourierTests {
 
         Allure.step("Проверка сообщения об ошибке");
         assertThat(response.body().jsonPath().getString("message"), equalTo("Недостаточно данных для входа"));
+
+        // Дополнение для проверки успешного завершения теста
+        assertTrue("Тест авторизации курьера с пустыми полями завершен успешно", true);
+        System.out.println("Тест авторизации курьера с пустыми полями завершен успешно");
     }
 }

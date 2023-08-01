@@ -12,10 +12,6 @@ public class OrderDetails {
     private List<String> color;
 
     // Конструкторы
-    public OrderDetails() {
-        // Пустой конструктор
-    }
-
     public OrderDetails(String firstName, String lastName, String address, String metroStation, String phone,
                         int rentTime, String deliveryDate, String comment, List<String> color) {
         this.firstName = firstName;
@@ -100,5 +96,20 @@ public class OrderDetails {
 
     public void setColor(List<String> color) {
         this.color = color;
+    }
+
+    @Override
+    public String toString() {
+        return "OrderDetails{" +
+                "firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", address='" + address + '\'' +
+                ", metroStation='" + metroStation + '\'' +
+                ", phone='" + phone + '\'' +
+                ", rentTime=" + rentTime +
+                ", deliveryDate='" + deliveryDate + '\'' +
+                ", comment='" + comment + '\'' +
+                ", color=" + color +
+                '}';
     }
 }

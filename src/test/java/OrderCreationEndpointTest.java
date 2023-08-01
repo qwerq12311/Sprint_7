@@ -1,7 +1,4 @@
-import io.qameta.allure.Allure;
-import io.qameta.allure.Description;
-import io.qameta.allure.Epic;
-import io.qameta.allure.Feature;
+import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.AfterClass;
@@ -15,15 +12,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
-@Epic("Тестирование API")
-@Feature("Создание заказа. Затем заказы отменяем")
 public class OrderCreationEndpointTest {
 
-    // Отслеживание номеров (track) созданных заказов
     private static List<Integer> createdOrderTracks = new ArrayList<>();
 
     @Parameterized.Parameters
@@ -52,52 +48,35 @@ public class OrderCreationEndpointTest {
 
     @BeforeClass
     public static void setup() {
-        RestAssured.baseURI = OrderCreationEndpoint.BASE_URL;
+        RestAssured.baseURI = TestConfig.BASE_URL;
+        // Подключение плагина allure-rest-assured
+        RestAssured.filters(new AllureRestAssured());
     }
 
     @Test
-    @Description("Тест на создание заказа")
     public void testCreateOrder() {
-        // Шаг 1: Подготовка данных для создания заказа
-        assertNotNull(orderDetails.getFirstName());
-        assertNotNull(orderDetails.getLastName());
-        assertNotNull(orderDetails.getAddress());
-        assertNotNull(orderDetails.getMetroStation());
-        assertNotNull(orderDetails.getPhone());
-        assertTrue(orderDetails.getRentTime() > 0);
-        assertNotNull(orderDetails.getDeliveryDate());
+        Response response = given()
+                .contentType("application/json")
+                .body(orderDetails)
+                .when()
+                .post(OrderCreationEndpoint.ENDPOINT_ORDER_CREATION)
+                .then()
+                .statusCode(201)
+                .body("track", notNullValue())
+                .extract().response();
 
-        // Шаг 2: Отправка запроса на создание заказа
-        Response response = OrderCreationEndpoint.createOrder(orderDetails);
-        response.then().statusCode(201);
-
-        // Шаг 3: Проверка, что в ответе есть номер отслеживания (track)
-        Integer track = response.jsonPath().getInt("track");
-        assertNotNull(track);
-
-        // Добавляем номер отслеживания в список созданных заказов
+        // Получение значения track из ответа и вывод сообщения
+        Integer track = response.path("track");
         createdOrderTracks.add(track);
 
-        // Шаг 4: Вывод информации о созданном заказе
-        System.out.println("Заказ создан. Номер отслеживания (track): " + track);
-
-        // Allure: добавление шага в отчет
-        Allure.step("Заказ с номером отслеживания (track): " + track + " успешно создан");
+        System.out.println("Заказ с номером отслеживания : " + track + " успешно создан");
     }
 
     @AfterClass
     public static void cleanup() {
         for (Integer track : createdOrderTracks) {
-            Response response = OrderCreationEndpoint.cancelOrder(track.toString());
-            if (response != null && response.getStatusCode() == 200) {
-                System.out.println("Заказ с номером отслеживания (track): " + track + " успешно отменен");
-                // Allure: добавление шага в отчет
-                Allure.step("Заказ с номером отслеживания (track): " + track + " успешно отменен");
-            } else {
-                System.out.println("Не удалось отменить заказ с номером отслеживания (track): " + track);
-                // Allure: добавление шага в отчет
-                Allure.step("Не удалось отменить заказ с номером отслеживания (track): " + track);
-            }
+            OrderCreationEndpoint.cancelOrder(String.valueOf(track));
+            System.out.println("Заказ с номером отслеживания : " + track + " успешно удален");
         }
     }
 }

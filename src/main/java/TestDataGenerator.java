@@ -16,4 +16,10 @@ public class TestDataGenerator {
     public static String generateRandomPassword() {
         return faker.internet().password();
     }
-}
+
+        // Метод для генерации тестовых данных с пустыми полями для авторизации курьера
+        public static String generateEmptyCredentialsJson () {
+            return generateLoginCredentialsJson("", "");
+        }
+    }
+

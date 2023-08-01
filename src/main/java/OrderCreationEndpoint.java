@@ -5,41 +5,40 @@ import io.restassured.response.Response;
 import java.util.Arrays;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.notNullValue;
 
 public class OrderCreationEndpoint {
 
-    public static final String BASE_URL = "https://qa-scooter.praktikum-services.ru/";
     public static final String ENDPOINT_ORDER_CREATION = "/api/v1/orders";
-
     public static final String ENDPOINT_ORDER_CANCEL = "/api/v1/orders/cancel";
 
+    static {
+        RestAssured.baseURI = TestConfig.BASE_URL;
+        RestAssured.requestSpecification = given().contentType(ContentType.JSON);
+    }
+
     public static Response createOrder(OrderDetails orderDetails) {
-        RestAssured.baseURI = BASE_URL;
         return given()
-                .contentType(ContentType.JSON)
                 .body(orderDetails)
                 .when()
                 .post(ENDPOINT_ORDER_CREATION)
                 .then()
-                .statusCode(201) // Verify status code is 201 (Created)
-                .body("track", notNullValue()) // Verify the "track" field is not null
+                .statusCode(201)
+                .body("track", notNullValue())
                 .extract()
                 .response();
     }
 
     public static Response cancelOrder(String track) {
-        RestAssured.baseURI = BASE_URL;
         return given()
-                .contentType(ContentType.JSON)
-                .pathParam("track", track) // Pass the "track" parameter in the URL
+                .pathParam("track", track)
                 .when()
                 .put(ENDPOINT_ORDER_CANCEL + "?track={track}");
     }
 
     public static OrderDetails createOrderRequest() {
-        // Create and return an OrderDetails object with sample parameterized data
-        OrderDetails orderDetails = new OrderDetails();
+        TestDataOrder testDataOrder = new TestDataOrder();
+        OrderDetails orderDetails = testDataOrder.createOrderDetails();
         orderDetails.setFirstName("Ibragim");
         orderDetails.setLastName("Kandibober");
         orderDetails.setAddress("123 Afghanistan");
@@ -49,7 +48,6 @@ public class OrderCreationEndpoint {
         orderDetails.setDeliveryDate("2023-07-30T21:00:00.000Z");
         orderDetails.setComment("FASTEEEEER");
         orderDetails.setColor(Arrays.asList("BLACK", "GREY"));
-
         return orderDetails;
     }
 }
